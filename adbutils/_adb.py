@@ -295,7 +295,7 @@ class BaseClient(object):
             if raise_error:
                 raise
 
-    def track_devices(self) -> Iterator[DeviceEvent]:
+    def track_devices(self, limit_status: typing.List[str] | None = None) -> Iterator[DeviceEvent]:
         """
         Report device state when changes
 
@@ -317,7 +317,8 @@ class BaseClient(object):
                 output = c.read_string_block()
                 curr_devices = self._output2devices(output)
                 for event in self._diff_devices(orig_devices, curr_devices):
-                    yield event
+                    if limit_status is None or event.status in limit_status:
+                        yield event
                 orig_devices = curr_devices
 
     def _output2devices(self, output: str):
